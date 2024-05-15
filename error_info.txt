@@ -1,0 +1,3 @@
+gensim_installaion{local cache error}:
+
+solution : bash ""/Applications/Python*/Install\ Certificates.command"
