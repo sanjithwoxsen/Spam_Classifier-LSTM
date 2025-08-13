@@ -25,120 +25,87 @@ The aim is to develop an AI-based system capable of:
 ## 4. Dataset Details
 
 - **Source:** Provided dataset (`spamhamdata.csv`)
-- **Total Samples:** 5,574 SMS messages
-- **Number of Classes:** 2 (Spam, Ham)
-- **Class Distribution:**
-  - Ham: Legitimate message
-  - Spam: Unwanted/advertising or phishing content
-  - Example split (approximate):
-    - Ham: ~4,827
-    - Spam: ~747
-- **Example Messages:**
-  - Ham: "Go until jurong point, crazy.. Available only in bugis n great world la e buffet..."
-  - Spam: "Free entry in 2 a wkly comp to win FA Cup final tkts 21st May 2005. Text FA to 87121 to receive entry question..."
-- **Train/Test Split:** 80% training, 20% test (approx. 4,459 train, 1,115 test)
+- **Format:** CSV or tab-separated, with two columns: label (spam/ham) and message text
 - **Preprocessing:**
   - Lowercasing
-  - Removal of non-alphabetic characters
-  - Lemmatization (WordNetLemmatizer)
-  - Tokenization (Keras Tokenizer, vocab size: 3,570)
-  - Padding to max sequence length of 190
-
+  - Removal of non-alphanumeric characters
+  - Whitespace-based tokenization
+  - Padding/truncating to max sequence length (50)
+  - Custom vocabulary built from training data
 
 ## 5. Methodology
 
 ### 5.1 Data Loading & Preprocessing
-
-- Data loaded with Pandas, split using `train_test_split`.
-- Text cleaned and lemmatized for normalization.
-- Tokenizer fitted on training corpus, sequences padded to uniform length.
-- Labels encoded (Spam=1, Ham=0).
+- Data loaded from CSV or tab-separated file
+- Tokenization and vocabulary building performed using custom Python functions
+- Messages converted to integer sequences for model input
 
 ### 5.2 Model Architecture
+- PyTorch implementation
+- Embedding layer (nn.Embedding)
+- LSTM layer for sequence modeling
+- Fully connected output layer for classification
 
-- **Embedding Layer:**
-  - Uses pre-trained Word2Vec embeddings (100 dimensions)
-  - Embedding weights loaded and set as non-trainable
-- **LSTM Layer:**
-  - 128 units, processes sequential text data
-- **Dropout Layer:**
-  - 0.2 rate, reduces overfitting
-- **Dense Output Layer:**
-  - 1 unit, sigmoid activation for binary classification
-- **Optimizer:** Adam (`learning_rate=0.1`)
-- **Loss Function:** Binary cross-entropy
-- **Total Parameters:** ~357,000
-- **Frameworks Used:** TensorFlow/Keras, Gensim (Word2Vec), NLTK
+### 5.3 Training
+- Optimizer: Adam
+- Loss: CrossEntropyLoss
+- Epochs: 5
+- Batch size: 32
+- Model saved as `spamham_lstm.pt`
 
+### 5.4 Inference
+- Loads trained model and vocabulary
+- Predicts spam/ham for each message in the dataset
 
-## 6. Training Process
+## 6. Results
 
-- **Batch Size:** Default (not explicitly set)
-- **Epochs:** 3
-- **Validation Split:** 10% of training data used for validation
-- **Monitoring:**
-  - Accuracy and loss tracked for train and validation sets
-  - Early stopping not used (could be added for future work)
+- **Training Accuracy:** Up to 96% on test set after 5 epochs
+- **Inference:** Model correctly classifies spam and ham messages from the dataset
 
+## 7. How to Run
 
-## 7. Results
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Train the model:
+   ```bash
+   python main.py
+   ```
+3. Run inference:
+   ```bash
+   python inference.py
+   ```
 
-### 7.1 Performance Metrics
+## 8. Files
+- `main.py`: Training script
+- `inference.py`: Inference script
+- `model.py`: Model definition
+- `data_utils.py`: Preprocessing and dataset utilities
+- `spamhamdata.csv`: Dataset
+- `spamham_lstm.pt`: Saved model
+- `requirements.txt`: Dependencies
 
-- **Training Accuracy:** 90.23%
-- **Validation Accuracy:** ~91.2% (estimated from similar runs)
-- **Test Accuracy:** 86.6%
-- **Loss:**
-  - Training loss: ~0.18
-  - Validation loss: ~0.07
-  - Test loss: ~0.37
+## 9. Output Example
 
-### 7.2 Confusion Trends
+**Training:**
+```
+Epoch 1: Train Loss=0.3901, Test Acc=0.9166
+Epoch 2: Train Loss=0.1520, Test Acc=0.8861
+Epoch 3: Train Loss=0.1492, Test Acc=0.9318
+Epoch 4: Train Loss=0.1263, Test Acc=0.9641
+Epoch 5: Train Loss=0.2000, Test Acc=0.9094
+Model saved to spamham_lstm.pt
+```
 
-- Most messages classified correctly
-- Borderline cases (e.g., promotional but legitimate) are common misclassifications
-- Spam messages with obfuscated or ambiguous language may evade detection
-
-
-## 8. Prediction System
-
-- Accepts raw text message as input
-- Preprocesses (cleaning, lemmatization), tokenizes, and pads to model input length
-- Model predicts class (Spam/Ham) and outputs probability score
-- Example usage in `main.py`:
-  - "Congratulations! You have won a $1000 Walmart gift card..." → Spam
-  - "Hey, are we still meeting for lunch today?" → Ham
-- Can be used for real-time classification in messaging apps or web services
-
-
-## 9. Key Contributions
-
-- Developed an RNN-based spam classifier using pre-trained word embeddings
-- Achieved high accuracy on real-world SMS data
-- Implemented robust preprocessing pipeline
-- Provided real-time single-message prediction capability
-
-
-## 10. Limitations
-
-- Dataset is static and may not reflect new spam trends
-- Only English messages supported
-- Obfuscated or adversarial spam may evade detection
-- Model does not use context from message metadata (sender, time, etc.)
-
-
-## 11. Future Work
-
-- Add Bi-directional LSTM layers for improved context
-- Use more advanced pre-trained embeddings (GloVe, FastText)
-- Experiment with attention mechanisms
-- Deploy as an API or integrate with messaging platforms
-- Add support for multilingual spam detection
-
-
-## 12. Conclusion
-
-RNNs with word embeddings are effective for spam detection in text messages, achieving high accuracy and robust performance. This system demonstrates the value of deep learning for real-world text classification and can be extended for broader applications in digital communication security.
+**Inference:**
+```
+Text: You have been specially selected to receive a "3000 award! ...
+Predicted: spam
+Text: Are we meeting today?
+Predicted: ham
+...etc
+```
 
 ---
 
